@@ -6,3 +6,11 @@ export function successResponse(res, data = null, message = "Success", status = 
     timeStamp: Date.now(),
   });
 }
+export function errorResponse(res, message = "Error", status = 500, data = null) {
+  return res.status(status).json({
+    success: false,
+    message,
+    data,
+    timeStamp: Date.now(),
+  });
+}

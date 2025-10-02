@@ -4,6 +4,7 @@ import prisma from "../../prisma/client.js";
 import { ServerException } from "../../utils/errors.js";
 import { generateVerificationToken } from "../../utils/token.js";
 import { sendVerificationEmail } from "../../utils/sendmail.js";
+import { generateToken } from "../../utils/jwt.util.js";
 class AuthService {
   async register(data) {
     
@@ -32,6 +33,57 @@ class AuthService {
     await sendVerificationEmail(newUser, token);
 
     return newUser;
+  }
+  async loginWithGoogle(profile) {
+    const email = profile.emails?.[0]?.value;
+    if (!email) throw new ServerException("Google account has no email", 400);
+
+    let user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          firstName: profile.name?.givenName || "",
+          lastName: profile.name?.familyName || "",
+          email,
+          password: null, 
+          role: "User",
+          provider: "google",
+          externalId: profile.id,
+          isActive: true,
+        },
+      });
+    }
+
+     const token = generateToken(user);
+
+    return { user, token };
+  }
+
+  async loginWithFacebook(profile) {
+    const email = profile.emails?.[0]?.value;
+    if (!email) throw new ServerException("Facebook account has no email", 400);
+
+    let user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          firstName: profile.name?.givenName || "",
+          lastName: profile.name?.familyName || "",
+          email,
+          password: null, 
+          role: "User",
+          provider: "facebook",
+          externalId: profile.id,
+          isActive: true,
+        },
+      });
+    }
+
+    const token = generateToken(user);
+
+    return { user, token };
   }
 }
 
