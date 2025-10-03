@@ -15,10 +15,11 @@ router.get(
 );
 
 // Login Facebook
-router.get("/facebook", passport.authenticate("facebook", { scope: ["email"] }));
+router.get("/facebook", passport.authenticate("facebook", { scope: ["public_profile","email"] }));
 router.get(
   "/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: "/login" }),
-  AuthController.facebookCallback
+  passport.authenticate("facebook", {session: false, failureRedirect: "/login" }),
+  (req, res, next) => AuthController.facebookCallback(req, res, next)
 );
+
 export default router;

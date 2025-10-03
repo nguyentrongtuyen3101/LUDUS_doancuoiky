@@ -25,6 +25,7 @@ passport.use(
     facebookConfig,
     async (accessToken, refreshToken, profile, done) => {
       try {
+        console.log("Facebook profile:", profile);
         const result = await AuthService.loginWithFacebook(profile);
         return done(null, result);
       } catch (err) {

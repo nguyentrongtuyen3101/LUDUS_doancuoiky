@@ -67,12 +67,22 @@ class AuthService {
     let user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
+      const fullName = profile.displayName || profile._json?.name || "";
+      let firstName = "";
+      let lastName = "";
+
+      if (fullName) {
+        const parts = fullName.trim().split(" ");
+        firstName = parts[0] || "";
+        lastName = parts.slice(1).join(" ") || "";
+      }
+
       user = await prisma.user.create({
         data: {
-          firstName: profile.name?.givenName || "",
-          lastName: profile.name?.familyName || "",
+          firstName,
+          lastName,
           email,
-          password: null, 
+          password: null,
           role: "User",
           provider: "facebook",
           externalId: profile.id,
@@ -82,9 +92,9 @@ class AuthService {
     }
 
     const token = generateToken(user);
-
     return { user, token };
   }
+
 }
 
 export default new AuthService();
