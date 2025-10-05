@@ -279,3 +279,21 @@ model Review {
   createdAt DateTime  @default(now())
 }
 
+//token domain model
+model VerifiToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  token     String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  token     String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

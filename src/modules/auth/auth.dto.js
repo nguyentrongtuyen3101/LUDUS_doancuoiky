@@ -27,3 +27,42 @@ export class RegisterDto {
     if(new Date().getFullYear()-new Date(this.birthday).getFullYear<18) throw new ClientException("Người dùng phải đủ 18 tuổi", 400);
   }
 }
+export class LoginDto {
+  constructor(data) {
+    this.email = data.email?.toLowerCase();
+    this.password = data.password;
+
+    this.validate();
+  }
+
+  validate() {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.email)) throw new ClientException("Invalid email format", 400);
+    if (!this.password) throw new ClientException("Password is required", 400);
+  }
+}
+
+export class SendResetPasswordDto {
+  constructor(data) {
+    this.email = data.email?.toLowerCase();
+    this.validate();
+  }
+
+  validate() {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.email)) throw new ClientException("Invalid email format", 400);
+  }
+}
+
+export class ResetPasswordDto {
+  constructor(data) {
+    this.password = data.password;
+    this.validate();
+  }
+
+  validate() {
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(this.password)) throw new ClientException("Password must contain at least 8 characters, including uppercase, lowercase, number, and special character",400);
+  }
+}

@@ -2,8 +2,8 @@
 import bcrypt from "bcryptjs";
 import prisma from "../../prisma/client.js"; 
 import { ServerException } from "../../utils/errors.js";
-import { generateVerificationToken } from "../../utils/token.js";
-import { sendVerificationEmail } from "../../utils/sendmail.js";
+import { generateVerificationToken,verifyVerificationToken ,generateResetcationToken,} from "../../utils/token.js";
+import { sendVerificationEmail,sendResetPasswordEmail } from "../../utils/sendmail.js";
 import { generateToken } from "../../utils/jwt.util.js";
 class AuthService {
   async register(data) {
@@ -31,9 +31,38 @@ class AuthService {
     });
     const token = generateVerificationToken(newUser.id);
     await sendVerificationEmail(newUser, token);
-
+    const verifitoken= await prisma.verifiToken.findFirst({where: { userId: newUser.id }, });
+    if(verifitoken) await prisma.verifiToken.deleteMany({ where: { userId: newUser.id } });
+    await prisma.verifiToken.create({
+      data: { 
+        userId: newUser.id,
+        token,
+        expiresAt: new Date(Date.now() + 2592000000) 
+      }
+    });
     return newUser;
   }
+  async verifyEmail(token) {
+    if(!token) throw new ServerException("Verification token is required", 400);
+    const verifitoken = await prisma.verifiToken.findFirst({ 
+      where: { token, expiresAt: { gt: new Date() },used: false } 
+    });
+    if(!verifitoken) throw new ServerException("Invalid or expired verification token", 400);
+    try {
+      const decoded= verifyVerificationToken(token);
+      const user=await prisma.user.update(
+        {
+          where: { id: decoded.userId },
+          data: { isActive: true },
+        }
+      );
+      await prisma.verifiToken.updateMany({ where: { userId: user.id }, data: { used: true } });
+      return user;
+    } catch (error) {
+      throw new ServerException("Invalid or expired verification token", 400);
+    }
+  }
+
   async loginWithGoogle(profile) {
     const email = profile.emails?.[0]?.value;
     if (!email) throw new ServerException("Google account has no email", 400);
@@ -94,7 +123,37 @@ class AuthService {
     const token = generateToken(user);
     return { user, token };
   }
+  
+  async login(data) {
+    const user = await prisma.user.findUnique({
+      where: { email: data.email },
+    });
+    if(!user) throw new ServerException("Không tìm thấy tài khoản đăng ký với mail này", 401);
+    const isPasswordValid = await bcrypt.compare(data.password, user.password);
+    if (!isPasswordValid) throw new ServerException("Password sai", 401);
+    
+    const token= generateToken(user);
+    return { user:{id: user.id, firstName: user.firstName, lastName: user.lastName, role: user.role, }, token};
+  }
 
+  async sendMailResetPassword(data) {
+    const user = await prisma.user.findUnique({where: { email: data.email }, });
+    if(!user) throw new ServerException("Không tìm thấy tài khoản đăng ký với mail này", 404);
+
+    const token = generateResetcationToken(user.id);
+    await sendResetPasswordEmail(user, token);
+    const passwordResetToken = await prisma.passwordResetToken.findFirst({where: { userId: user.id }, });
+    if (passwordResetToken) await prisma.passwordResetToken.deleteMany({ where: { userId: user.id } });
+    
+    const newPasswordResetToken = await prisma.passwordResetToken.create({
+      data: { 
+        userId: user.id,
+        token,
+        expiresAt: new Date(Date.now() + 900000) 
+      }
+    });
+    return newPasswordResetToken;
+  }
 }
 
 export default new AuthService();

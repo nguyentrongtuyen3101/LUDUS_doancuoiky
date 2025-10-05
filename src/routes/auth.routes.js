@@ -5,7 +5,9 @@ import AuthController from "../modules/auth/auth.controller.js";
 const router = Router();
 
 router.post("/register", AuthController.register);
-
+router.get("/verify", AuthController.verifyEmail);
+router.post("/login", AuthController.login);
+router.post("/send-reset-password", AuthController.sendMailResetPassword);
 // Login Google
 router.get("/google",passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get(

@@ -1,10 +1,18 @@
 import jwt from "jsonwebtoken";
-import authConfig from "../config/auth.js";
+import {verifyConfig, resetConfig} from "../config/auth.js";
 
 export function generateVerificationToken(userId) {
-  return jwt.sign({ userId }, authConfig.secret, { expiresIn: authConfig.expiry });
+  return jwt.sign({ userId }, verifyConfig.secret, { expiresIn: verifyConfig.expiry });
 }
 
 export function verifyVerificationToken(token) {
-  return jwt.verify(token, authConfig.secret);
+  return jwt.verify(token, verifyConfig.secret);
+}
+
+export function generateResetcationToken(userId) {
+  return jwt.sign({ userId }, resetConfig.secret, { expiresIn: resetConfig.expiry });
+}
+
+export function verifyResetcationToken(token) {
+  return jwt.verify(token, resetConfig.secret);
 }
