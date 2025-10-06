@@ -86,7 +86,7 @@ class AuthService {
     }
 
     const token = generateToken(user);
-    await redis.set(`auth:user:${user.id}`, token, 'EX', 3600);
+    await redis.set(`auth:user:${user.id}`, token, "EX", 3600);
     return { user, token };
   }
 
@@ -122,7 +122,7 @@ class AuthService {
     }
 
     const token = generateToken(user);
-    await redis.set(`auth:user:${user.id}`, token, 'EX', 3600);
+    await redis.set(`auth:user:${user.id}`, token, "EX", 3600);
     return { user, token };
   }
   
@@ -135,7 +135,7 @@ class AuthService {
     if (!isPasswordValid) throw new ServerException("Password sai", 401);
     
     const token= generateToken(user);
-    await redis.set(`auth:user:${user.id}`, token, 'EX', 3600);
+    await redis.set(`auth:user:${user.id}`, token, "EX", 3600);
     
     return { user:{id: user.id, firstName: user.firstName, lastName: user.lastName, role: user.role, }, token};
   }

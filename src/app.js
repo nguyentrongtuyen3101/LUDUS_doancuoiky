@@ -10,6 +10,7 @@ import passport from "passport";
 import "./config/passport.js";
 import {authMiddleware} from "./middlewares/auth.middleware.js";
 const app = express();
+app.use(express.static("public"));
 
 // Middleware
 app.use(cors());
