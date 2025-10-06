@@ -1,4 +1,4 @@
-import { RegisterDto,LoginDto,SendResetPasswordDto} from "./auth.dto.js";
+import { RegisterDto,LoginDto,SendResetPasswordDto,ResetPasswordDto} from "./auth.dto.js";
 import authService from "./auth.service.js";
 import { successResponse,errorResponse } from "../../utils/response.js";
 
@@ -42,6 +42,11 @@ class AuthController {
   async sendMailResetPassword(req, res, next) {
     const resetToken = await authService.sendMailResetPassword(new SendResetPasswordDto(req.body));
     return successResponse(res, resetToken, "Password reset email sent", 200);
+    }
+
+  async resetPassword(req, res, next) {
+    const user = await authService.resetPassword(req.query.token, new ResetPasswordDto(req.body));
+    return successResponse(res, user, "Password reset successfully", 200);
     }
 }
 export default new AuthController();

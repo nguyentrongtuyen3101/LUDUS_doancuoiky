@@ -8,6 +8,7 @@ router.post("/register", AuthController.register);
 router.get("/verify", AuthController.verifyEmail);
 router.post("/login", AuthController.login);
 router.post("/send-reset-password", AuthController.sendMailResetPassword);
+router.patch("/reset-password", AuthController.resetPassword);
 // Login Google
 router.get("/google",passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get(

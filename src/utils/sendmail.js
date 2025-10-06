@@ -222,7 +222,7 @@ export async function sendVerificationEmail(user, token) {
 }
 
 export async function sendResetPasswordEmail(user, token) {
-  const resetUrl = `${process.env.APP_URL}/api/auth/reset?token=${token}`;
+  const resetUrl = `${process.env.APP_URL}/auth/reset-password?token=${token}`;
 
   const html = `
   <!DOCTYPE html>
@@ -249,7 +249,7 @@ export async function sendResetPasswordEmail(user, token) {
         max-width: 800px;
         margin: auto;
         padding: 40px;
-        background: rgba(255, 255, 255, 0.95);
+        background: white;
         border-radius: 10px;
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
         overflow: hidden;
@@ -319,46 +319,16 @@ export async function sendResetPasswordEmail(user, token) {
            alt="LUDUS Logo" style="max-height:80px;border-radius:12px;margin-bottom:15px;">
       <h1>Welcome to <span class="highlight-l">L</span><span class="highlight">UDUS</span></h1>
       <p>Hello <strong>${user.firstName} ${user.lastName}</strong>,<br>
-         Please enter a new password below to reset your account access.</p>
-      <form id="resetForm">
-        <input type="password" id="password" placeholder="Enter new password" required />
-        <div class="error" id="error"></div>
-        <button type="submit">Reset Password</button>
-      </form>
+         We received a request to reset your password for your <b><span class="highlight-l">L</span><span class="highlight">UDUS</span></b> account.<br/>
+      Click the button below to set a new password</p>
+      <a href="${resetUrl}" class="btn" style="color: red; text-decoration: none;background-color: white;padding:15px 20px 15px 20px;font-size: 20px; border: solid 2px red;border-radius: 20px;font-weight: bold;">Reset Password</a>
+      <p style="margin-top:24px;">If you didn’t request a password reset, you can safely ignore this email.</p>
+
+      <div class="footer">
+        This link will expire in <b>15 minutes</b>.<br/>
+        &copy; ${new Date().getFullYear()} <span class="highlight-l">L</span><span class="highlight">UDUS</span>. All rights reserved.
+      </div>
     </div>
-
-    <script>
-      const form = document.getElementById('resetForm');
-      const errorDiv = document.getElementById('error');
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const password = document.getElementById('password').value.trim();
-
-        const isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$/.test(password);
-        if (!isValid) {
-          errorDiv.textContent = "Password must be ≥8 chars, include uppercase, lowercase, number & special character.";
-          return;
-        }
-        errorDiv.textContent = "";
-
-        try {
-          const res = await fetch("${resetUrl}", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ password }),
-          });
-          const data = await res.json();
-          if (res.ok) {
-            alert("✅ Password reset successfully! You can now login.");
-            window.close();
-          } else {
-            errorDiv.textContent = data.message || "Reset failed.";
-          }
-        } catch (err) {
-          errorDiv.textContent = "Something went wrong. Please try again.";
-        }
-      });
-    </script>
   </body>
   </html>
   `;

@@ -2,9 +2,10 @@
 import bcrypt from "bcryptjs";
 import prisma from "../../prisma/client.js"; 
 import { ServerException } from "../../utils/errors.js";
-import { generateVerificationToken,verifyVerificationToken ,generateResetcationToken,} from "../../utils/token.js";
+import { generateVerificationToken,verifyVerificationToken ,generateResetcationToken,verifyResetcationToken} from "../../utils/token.js";
 import { sendVerificationEmail,sendResetPasswordEmail } from "../../utils/sendmail.js";
 import { generateToken } from "../../utils/jwt.util.js";
+import redis from "../../config/redis.js";
 class AuthService {
   async register(data) {
     
@@ -84,8 +85,8 @@ class AuthService {
       });
     }
 
-     const token = generateToken(user);
-
+    const token = generateToken(user);
+    await redis.set(`auth:user:${user.id}`, token, 'EX', 3600);
     return { user, token };
   }
 
@@ -121,6 +122,7 @@ class AuthService {
     }
 
     const token = generateToken(user);
+    await redis.set(`auth:user:${user.id}`, token, 'EX', 3600);
     return { user, token };
   }
   
@@ -133,6 +135,8 @@ class AuthService {
     if (!isPasswordValid) throw new ServerException("Password sai", 401);
     
     const token= generateToken(user);
+    await redis.set(`auth:user:${user.id}`, token, 'EX', 3600);
+    
     return { user:{id: user.id, firstName: user.firstName, lastName: user.lastName, role: user.role, }, token};
   }
 
@@ -153,6 +157,18 @@ class AuthService {
       }
     });
     return newPasswordResetToken;
+  }
+
+  async resetPassword(token, data ) {
+    if(!token) throw new ServerException("Reset token is required", 400);
+    if(!(await prisma.passwordResetToken.findFirst({ where: { token, expiresAt: { gt: new Date() }, used: false } }))) throw new ServerException("Giao dịch hết hạn , vui lòng gửi lại yêu cầu ", 400);
+    const decoded = verifyResetcationToken(token);
+    const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
+    if(!user) throw new ServerException("User not found", 404);
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+    await prisma.user.update({ where: { id: user.id }, data: { password: hashedPassword } });
+    await prisma.passwordResetToken.updateMany({ where: { userId: user.id }, data: { used: true } });
+    return { message: "Password reset successful" };
   }
 }
 

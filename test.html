@@ -16,16 +16,25 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 100vh;
+        min-height: 100vh; /* ✨ giúp căn giữa theo chiều dọc */
       }
       .container {
         max-width: 800px;
-        background: #fff;
-        border-radius: 12px;
+        margin: auto;
         padding: 40px;
-        text-align: center;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        position: relative;
+        animation: slideIn 0.6s ease-out;
         border: #ECECEC 1px solid;
         box-shadow: #0f172a 5px 5px 5px 5px;
+        text-align: center;
+      }
+      @keyframes slideIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
       }
       h1 {
         font-size: 28px;
@@ -68,13 +77,13 @@
         height: 18px;
       }
       .highlight {
-      color: #0f172a;
-      font-weight: 600;
-    }
-    .highlight-l {
-      color: #dc2626;
-      font-weight: 600;
-    }
+        color: #0f172a;
+        font-weight: 600;
+      }
+      .highlight-l {
+        color: #dc2626;
+        font-weight: 600;
+      }
     </style>
   </head>
   <body>
@@ -82,46 +91,16 @@
       <img src="https://i.pinimg.com/736x/fa/eb/a1/faeba1ac95a922f8c9cd7b7fcf86b28b.jpg" 
            alt="LUDUS Logo" style="max-height:80px;border-radius:12px;margin-bottom:15px;">
       <h1>Welcome to <span class="highlight-l">L</span><span class="highlight">UDUS</span></h1>
-      <p>Hello <strong>${user.firstName}</strong>,<br>
-         Please enter a new password below to reset your account access.</p>
-      <form id="resetForm">
-        <input type="password" id="password" placeholder="Enter new password" required />
-        <div class="error" id="error"></div>
-        <button type="submit">Reset Password</button>
-      </form>
+      <p>Hello <strong>${user.firstName} ${user.lastName}</strong>,<br>
+         We received a request to reset your password for your <b><span class="highlight-l">L</span><span class="highlight">UDUS</span></b> account.<br/>
+      Click the button below to set a new password</p>
+      <a href="${resetUrl}" class="btn" style="color: red; text-decoration: none;background-color: white;padding:15px 20px 15px 20px;font-size: 20px; border: solid 2px red;border-radius: 20px;font-weight: bold;">Reset Password</a>
+      <p style="margin-top:24px;">If you didn’t request a password reset, you can safely ignore this email.</p>
+
+      <div class="footer">
+        This link will expire in <b>15 minutes</b>.<br/>
+        &copy; ${new Date().getFullYear()} <span class="highlight-l">L</span><span class="highlight">UDUS</span>. All rights reserved.
+      </div>
     </div>
-
-    <script>
-      const form = document.getElementById('resetForm');
-      const errorDiv = document.getElementById('error');
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const password = document.getElementById('password').value.trim();
-
-        const isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$/.test(password);
-        if (!isValid) {
-          errorDiv.textContent = "Password must be ≥8 chars, include uppercase, lowercase, number & special character.";
-          return;
-        }
-        errorDiv.textContent = "";
-
-        try {
-          const res = await fetch("${resetUrl}", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ password }),
-          });
-          const data = await res.json();
-          if (res.ok) {
-            alert("✅ Password reset successfully! You can now login.");
-            window.close();
-          } else {
-            errorDiv.textContent = data.message || "Reset failed.";
-          }
-        } catch (err) {
-          errorDiv.textContent = "Something went wrong. Please try again.";
-        }
-      });
-    </script>
   </body>
   </html>
