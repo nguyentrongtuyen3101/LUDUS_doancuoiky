@@ -4,11 +4,9 @@ import redis from "../config/redis.js";
 export const authMiddleware = (roles = []) => {
   return async (req, res, next) => {
   try{
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-
+    const token = req.cookies?.authToken;
     if (!token) return res.status(401).json({ message: "Access denied. No token provided." });
-    
+
     const decoded = verifyToken(token);
       if (!decoded || !decoded.id) return res.status(401).json({ message: "Invalid token." });
 
@@ -22,7 +20,7 @@ export const authMiddleware = (roles = []) => {
       }
 
       req.user = {
-        id: userId,
+        id: decoded.id,
         email: decoded.email,
         role: decoded.role,
         isActive: decoded.isActive,

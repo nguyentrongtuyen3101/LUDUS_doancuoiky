@@ -1,6 +1,7 @@
 import { RegisterDto,LoginDto,SendResetPasswordDto,ResetPasswordDto} from "./auth.dto.js";
 import authService from "./auth.service.js";
 import { successResponse,errorResponse } from "../../utils/response.js";
+import { cookieOptions } from "../../config/cookie.config.js";
 
 class AuthController {
   async register(req, res, next) {
@@ -21,7 +22,8 @@ class AuthController {
   async googleCallback(req, res, next) {
     try {
       const { user, token } = req.user; 
-      return successResponse(res, { user, token }, "Login with Google successful", 200);
+      res.cookie("authToken", token, cookieOptions);
+      return res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
     } catch (err) {
       return errorResponse(res, "Google login failed", 500);
     }
@@ -30,15 +32,18 @@ class AuthController {
   async facebookCallback(req, res, next) {
     try {
       const { user, token } = req.user; 
-      return successResponse(res, { user, token }, "Login with Facebook successful", 200);
+      res.cookie("authToken", token, cookieOptions);
+      return res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
     } catch (err) {
       return errorResponse(res, "Facebook login failed", 500);
     }
   }
   async login(req, res, next) {
     const { user, token } = await authService.login(new LoginDto(req.body));
-    return successResponse(res, { user, token }, "Login successful", 200);
+    res.cookie("authToken", token, cookieOptions);
+    return res.json({ user });
     }
+
   async sendMailResetPassword(req, res, next) {
     const resetToken = await authService.sendMailResetPassword(new SendResetPasswordDto(req.body));
     return successResponse(res, resetToken, "Password reset email sent", 200);

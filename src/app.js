@@ -1,6 +1,4 @@
 import express from "express";
-import cors from "cors";
-
 //import accountRoutes from "./routes/account.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import { loggerMiddleware } from "./middlewares/logger.middleware.js";
@@ -9,11 +7,17 @@ import { errorMiddleware } from "./middlewares/error.middleware.js";
 import passport from "passport"; 
 import "./config/passport.js";
 import {authMiddleware} from "./middlewares/auth.middleware.js";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 const app = express();
 app.use(express.static("public"));
 
-// Middleware
-app.use(cors());
+app.use(cookieParser()); 
+app.use(cors({
+  origin: process.env.FRONTEND_URL, 
+  credentials: true                 
+}));
+
 app.use(express.json());
 app.use(loggerMiddleware);
 app.use(responseTimeMiddleware);
