@@ -9,4 +9,4 @@ npm run db:generate
 npm run db:push
 
 # chạy server
-npn run dev
+npm run dev
