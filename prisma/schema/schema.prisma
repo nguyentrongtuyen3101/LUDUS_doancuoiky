@@ -94,6 +94,9 @@ model Product {
   subcategory     Subcategory      @relation(fields: [subcategoryId], references: [id])
   productVariants ProductVariant[]
   wishlists       Wishlist[]
+
+  sizes           Json?            
+  colors          Json?
   reviews         Review[]         @relation("ProductToReviews")
 }
 

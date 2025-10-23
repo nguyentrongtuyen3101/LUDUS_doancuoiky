@@ -1,4 +1,4 @@
-import {createDto,searchByKeyWordDto} from "./subCategory.dto.js";
+import {createDto} from "./subCategory.dto.js";
 import {subCategoryService} from "./subCategory.service.js";
 import { successResponse,errorResponse } from "../../../utils/response.js";
 

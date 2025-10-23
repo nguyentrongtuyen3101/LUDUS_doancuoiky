@@ -15,9 +15,22 @@ const app = express();
 app.use(express.static("public"));
 
 app.use(cookieParser()); 
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL_USER,   
+  process.env.FRONTEND_URL_ADMIN,  
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL, 
-  credentials: true                 
+  origin: function (origin, callback) {
+    
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Không được phép truy cập bởi CORS"));
+    }
+  },
+  credentials: true
 }));
 
 app.use(express.json());

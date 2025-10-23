@@ -1,6 +1,5 @@
 import prisma from "../../../prisma/client.js"; 
 import { ServerException } from "../../../utils/errors.js";
-import { validateQuery, paginationSchema } from "../../../validators/queryValidator.js";
 
 export class subCategoryService {
     async create(data,id) {
