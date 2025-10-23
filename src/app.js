@@ -2,6 +2,7 @@ import express from "express";
 //import accountRoutes from "./routes/account.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import categoryRouter from "./routes/admin/category.routes.js";
+import subCategoryRouter from "./routes/admin/subCategory.routes.js";
 import { loggerMiddleware } from "./middlewares/logger.middleware.js";
 import { responseTimeMiddleware } from "./middlewares/responseTime.middleware.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
@@ -26,6 +27,7 @@ app.use(passport.initialize());
 
 app.use("/auth", authRoutes);
 app.use("/category", authMiddleware(["Admin"]), categoryRouter);
+app.use("/subcategory", authMiddleware(["Admin"]), subCategoryRouter);
 app.use(errorMiddleware);
 
 export default app;

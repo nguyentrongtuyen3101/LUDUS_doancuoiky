@@ -11,3 +11,12 @@ export class createDto {
     if(this.description && this.description.length < 10) throw new ClientException("Mô tả phải lớn hơn 10 ký tự", 400);
   }
 }
+export class searchByKeyWordDto {
+  constructor(data) {
+    this.keyword = data.keyword?.trim();
+    this.validate();
+  }
+  validate() {
+    if(!this.keyword || this.keyword.length < 1) throw new ClientException("Từ khóa tìm kiếm không được để trống", 400);
+  }
+}

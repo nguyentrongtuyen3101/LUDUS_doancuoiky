@@ -1,4 +1,4 @@
-import {createDto} from "./category.dto.js";
+import {createDto,searchByKeyWordDto} from "./category.dto.js";
 import {categoryService} from "./category.service.js";
 import { successResponse,errorResponse } from "../../../utils/response.js";
 
@@ -29,10 +29,11 @@ export class categoryController {
         }
     async getAll(req, res, next) {
         try {
-            const categories = await new categoryService().getAll();
+            const query = req.validatedQuery;
+            const categories = await new categoryService().getAll(query);
             return successResponse(res, categories, "Lấy danh mục thành công", 200);
         } catch (error) {
             return errorResponse(res, error.message, error.status || 500);
         }
     }
-    }
+}

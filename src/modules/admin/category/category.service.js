@@ -39,8 +39,31 @@ export class categoryService {
         await prisma.category.delete({ where: { id } });
         return { message: "Xóa danh mục thành công" };
     }
-    async getAll() {
-        const categories = await prisma.category.findMany();
-        return categories;
+    async getAll(query) {
+        const where=query.q ? 
+        {
+          OR:[
+            {name: { contains: query.q, mode: "insensitive" }},
+            {description: { contains: query.q, mode: "insensitive" }}
+          ]
+          }:{};
+        const categories = await prisma.category.findMany({
+          where,
+          skip: query.offset,
+          take: query.limit,
+        });
+        const total= await prisma.category.count(
+          {where}
+        );
+        const totalPages = Math.ceil(total/ query.limit);
+        return {
+          data: categories,
+          pagination: {
+            total,
+            totalPages,
+            limit: query.limit,
+            offset: query.offset,
+          },
+        };
     }
 }
