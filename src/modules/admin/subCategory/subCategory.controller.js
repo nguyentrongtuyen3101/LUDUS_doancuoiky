@@ -27,6 +27,14 @@ export class subCategoryController {
             return errorResponse(res, error.message, error.status || 500);
         }
         }
+    async getAllCategory(req, res, next) {
+      try {
+          const categories = await new subCategoryService().getAllCategory();
+          return successResponse(res, categories, "Lấy danh mục thành công", 200);
+      } catch (error) {
+          return errorResponse(res, error.message, error.status || 500);
+      }
+  }
     async getAll(req, res, next) {
         try {
             const query = req.validatedQuery;

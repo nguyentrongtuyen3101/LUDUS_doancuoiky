@@ -38,8 +38,11 @@ export class subCategoryService {
       await prisma.subcategory.delete({ where: { id } });
       return { message: "Xóa danh mục con thành công" };
     }
+    async getAllCategory() {
+      return await prisma.category.findMany();
+      }
     async getAll(query) {
-      const where=query.q ? 
+      const where=query.q? 
       {
         OR:[
           {name: { contains: query.q, mode: "insensitive" }},
