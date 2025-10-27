@@ -41,7 +41,7 @@ class AuthController {
   async login(req, res, next) {
     const { user, token } = await authService.login(new LoginDto(req.body));
     res.cookie("authToken", token, cookieOptions);
-    return res.json({ user });
+    return successResponse(res, null, "Đăng nhập thành công", 200);
     }
 
   async sendMailResetPassword(req, res, next) {
@@ -52,6 +52,11 @@ class AuthController {
   async resetPassword(req, res, next) {
     const user = await authService.resetPassword(req.query.token, new ResetPasswordDto(req.body));
     return successResponse(res, user, "Password reset successfully", 200);
+    }
+  
+  async me(req, res, next) {
+    const user =  await authService.me(req.user.id);
+    return successResponse(res, user, "User profile fetched successfully", 200);
     }
 }
 export default new AuthController();

@@ -170,6 +170,21 @@ class AuthService {
     await prisma.passwordResetToken.updateMany({ where: { userId: user.id }, data: { used: true } });
     return { message: "Password reset successful" };
   }
+
+  async me(userId) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+        }
+    });
+    if(!user) throw new ServerException("User not found", 404);
+    return user;
+  }
 }
 
 export default new AuthService();
