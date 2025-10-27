@@ -13,6 +13,8 @@ export const paginationSchema = z
     minPrice: z.coerce.number().optional(),
     maxPrice: z.coerce.number().optional(),
     id: z.string().optional(),
+    size: z.string().optional(),
+    color: z.string().optional(),
   })
   .transform((data) => {
     const page = data.page ?? 1;

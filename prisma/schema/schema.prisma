@@ -103,16 +103,15 @@ model Product {
 model ProductVariant {
   id                     String         @id @default(auto()) @map("_id") @db.ObjectId
   productId              String         @db.ObjectId
-  sizeId                 String         @db.ObjectId
-  colorId                String         @db.ObjectId
+  size               String         
+  color              String         
   stockQuantity          Int
   variantPrice           Float?
   variantDiscountedPrice Float?
   variantImageUrl        String?
   isActive               Boolean        @default(true)
   product                Product        @relation(fields: [productId], references: [id])
-  size                   Size           @relation(fields: [sizeId], references: [id])
-  color                  Color          @relation(fields: [colorId], references: [id])
+  createdAt       DateTime         @default(now())
   productImages          ProductImage[]
   cartDetails            CartDetail[]   @relation("CartDetailToProductVariant")
   buyNowItems            BuyNowItem[]   @relation("BuyNowItemToProductVariant")
@@ -126,24 +125,6 @@ model ProductImage {
   isMain           Boolean       @default(false)
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
 }
-
-model Size {
-  id              String          @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  description     String?
-  isActive        Boolean         @default(true)
-  productVariants ProductVariant[]
-}
-
-model Color {
-  id              String          @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  hexCode         String?
-  description     String?
-  isActive        Boolean         @default(true)
-  productVariants ProductVariant[]
-}
-
 
 // cart and Raorder domain models
 model Cart {

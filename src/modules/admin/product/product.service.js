@@ -7,7 +7,6 @@ export class productService{
     async create (data,id,file) {
     const tempPath = file?.path;
     try{
-        console.log("🟨 ID truyền vào:", id);
         if(!(await prisma.subcategory.findUnique({where:{id}}))) throw new ServerException("Danh mục con không tồn tại", 404);
         if(await prisma.product.findFirst({where:{productCode:data.productCode}})) throw new ClientException("Mã sản phẩm đã tồn tại", 400);
         if(!file) throw new ClientException("Hình ảnh sản phẩm là bắt buộc", 400);
