@@ -1,6 +1,7 @@
 import express from "express";
 //import accountRoutes from "./routes/account.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import profileRoutes from "./routes/user/manager_profile/profile.routes.js";
 import meRoutes from "./routes/me.routes.js";
 import categoryRouter from "./routes/admin/category.routes.js";
 import subCategoryRouter from "./routes/admin/subCategory.routes.js";
@@ -51,6 +52,8 @@ app.use("/product", authMiddleware(["Admin"]), productRouter);
 app.use("/product-variant", authMiddleware(["Admin"]), productVariantRouter);
 
 // user routes
+app.use("/manager-profile",authMiddleware(["User","Admin"]), profileRoutes);
+
 app.use("/new-arrivals",authMiddleware(["User","Admin"]), newArrivalsRouter);
 app.use(errorMiddleware);
 
