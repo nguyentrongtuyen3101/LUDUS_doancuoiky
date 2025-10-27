@@ -5,6 +5,7 @@ import categoryRouter from "./routes/admin/category.routes.js";
 import subCategoryRouter from "./routes/admin/subCategory.routes.js";
 import productRouter from "./routes/admin/product.routes.js";
 import productVariantRouter from "./routes/admin/productVariant.routes.js";
+import newArrivalsRouter from "./routes/user/newArrivals.routes.js";
 import { loggerMiddleware } from "./middlewares/logger.middleware.js";
 import { responseTimeMiddleware } from "./middlewares/responseTime.middleware.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
@@ -41,11 +42,15 @@ app.use(responseTimeMiddleware);
 app.use(passport.initialize());
 
 app.use("/auth", authRoutes);
+
+// admin routes
 app.use("/category", authMiddleware(["Admin"]), categoryRouter);
 app.use("/subcategory", authMiddleware(["Admin"]), subCategoryRouter);
 app.use("/product", authMiddleware(["Admin"]), productRouter);
 app.use("/product-variant", authMiddleware(["Admin"]), productVariantRouter);
 
+// user routes
+app.use("/new-arrivals",authMiddleware(["User","Admin"]), newArrivalsRouter);
 app.use(errorMiddleware);
 
 export default app;

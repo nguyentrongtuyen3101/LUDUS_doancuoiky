@@ -258,7 +258,7 @@ model Review {
   product   Product   @relation("ProductToReviews", fields: [productId], references: [id])
   userId    String    @db.ObjectId
   user      User      @relation("UserToReviews", fields: [userId], references: [id])
-  rating    Int
+  rating    Rating
   comment   String?   
   createdAt DateTime  @default(now())
 }
@@ -280,4 +280,16 @@ model PasswordResetToken {
   expiresAt DateTime
   used      Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+enum Rating {
+  ONE
+  ONE_HALF
+  TWO
+  TWO_HALF
+  THREE
+  THREE_HALF
+  FOUR
+  FOUR_HALF
+  FIVE
 }
