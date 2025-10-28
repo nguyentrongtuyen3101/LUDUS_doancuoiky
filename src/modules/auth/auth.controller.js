@@ -23,7 +23,7 @@ class AuthController {
     try {
       const { user, token } = req.user; 
       res.cookie("authToken", token, authCookieOptions);
-      return res.redirect(`${process.env.FRONTEND_URL_USER}`);
+      return res.redirect(`${process.env.FRONTEND_URL_USER}/oauth-callback`);
     } catch (err) {
       return errorResponse(res, "Google login failed", 500);
     }
@@ -33,7 +33,7 @@ class AuthController {
     try {
       const { user, token } = req.user; 
       res.cookie("authToken", token, authCookieOptions);
-      return res.redirect(`${process.env.FRONTEND_URL_USER}`);
+      return res.redirect(`${process.env.FRONTEND_URL_USER}/oauth-callback`);
     } catch (err) {
       return errorResponse(res, "Facebook login failed", 500);
     }
