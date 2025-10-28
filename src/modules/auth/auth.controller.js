@@ -12,7 +12,7 @@ class AuthController {
   async verifyEmail(req, res, next) {
       try {
         await authService.verifyEmail(req.query.token);
-        return successResponse(res, null, "Email verified successfully", 200);
+        return res.redirect(`${process.env.FRONTEND_URL_USER}`);
       }
       catch (error) {
         return errorResponse(res, error.message, error.status || 500);
@@ -62,7 +62,7 @@ class AuthController {
     }
   }
   async resetPassword(req, res, next) {
-    const user = await authService.resetPassword(req.query.token, new ResetPasswordDto(req.body));
+    const user = await authService.resetPassword(req.cookies?.reset_token, new ResetPasswordDto(req.body));
     return successResponse(res, user, "Password reset successfully", 200);
     }
   

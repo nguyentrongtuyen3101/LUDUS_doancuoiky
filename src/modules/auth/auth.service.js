@@ -57,6 +57,8 @@ class AuthService {
           data: { isActive: true },
         }
       );
+      await prisma.cart.create({ data: { userId: decoded.userId} });
+      await prisma.wishlist.create({ data: { userId: decoded.userId} });
       await prisma.verifiToken.updateMany({ where: { userId: user.id }, data: { used: true } });
       return user;
     } catch (error) {
@@ -84,7 +86,8 @@ class AuthService {
         },
       });
     }
-
+    if(!await prisma.cart.findUnique({ where: { userId: user.id } })) await prisma.cart.create({ data: { userId: user.id} });
+    if(!await prisma.wishlist.findUnique({ where: { userId: user.id } })) await prisma.wishlist.create({ data: { userId: user.id} });
     const token = generateToken(user);
     await redis.set(`auth:user:${user.id}`, token, "EX", 3600);
     return { user, token };
@@ -120,7 +123,8 @@ class AuthService {
         },
       });
     }
-
+    if(!await prisma.cart.findUnique({ where: { userId: user.id } })) await prisma.cart.create({ data: { userId: user.id} });
+    if(!await prisma.wishlist.findUnique({ where: { userId: user.id } })) await prisma.wishlist.create({ data: { userId: user.id} });
     const token = generateToken(user);
     await redis.set(`auth:user:${user.id}`, token, "EX", 3600);
     return { user, token };
@@ -131,6 +135,7 @@ class AuthService {
       where: { email: data.email },
     });
     if(!user) throw new ServerException("Không tìm thấy tài khoản đăng ký với mail này", 401);
+    if(!user.isActive) throw new ServerException("Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để xác thực tài khoản", 401);
     const isPasswordValid = await bcrypt.compare(data.password, user.password);
     if (!isPasswordValid) throw new ServerException("Password sai", 401);
     

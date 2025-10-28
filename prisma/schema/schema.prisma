@@ -28,7 +28,7 @@ model User {
   phoneNumber      String?
   isActive         Boolean        @default(false)
   addresses        Address[]
-  wishlists        Wishlist[]
+  wishlist         Wishlist?      @relation("UserToWishlist")
   cart             Cart?          @relation("UserToCart")
   orders           Order[]        @relation("UserToOrders")
   reviews          Review[]       @relation("UserToReviews")
@@ -47,15 +47,6 @@ model Address {
   isDefault   Boolean  @default(false)
   user        User     @relation(fields: [userId], references: [id])
   orders      Order[]  @relation("OrderToShippingAddress")
-}
-
-model Wishlist {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  productId String   @db.ObjectId
-  addedDate DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
 }
 
 
@@ -93,7 +84,6 @@ model Product {
   productCode     String           @unique
   subcategory     Subcategory      @relation(fields: [subcategoryId], references: [id])
   productVariants ProductVariant[]
-  wishlists       Wishlist[]
 
   sizes           Json?            
   colors          Json?
@@ -114,6 +104,7 @@ model ProductVariant {
   createdAt       DateTime         @default(now())
   productImages          ProductImage[]
   cartDetails            CartDetail[]   @relation("CartDetailToProductVariant")
+  wishlistDetails       WishlistDetailt[]   @relation("WishlistDetailToProductVariant")
   buyNowItems            BuyNowItem[]   @relation("BuyNowItemToProductVariant")
   orderDetails           OrderDetail[]  @relation("OrderDetailToProductVariant")
 }
@@ -143,6 +134,22 @@ model CartDetail {
   productVariant   ProductVariant @relation("CartDetailToProductVariant", fields: [productVariantId], references: [id])
   quantity         Int
   unitPrice        Float
+}
+
+model Wishlist {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String      @db.ObjectId @unique
+  user          User        @relation("UserToWishlist", fields: [userId], references: [id])
+  createdAt     DateTime    @default(now())
+  wishlistDetailts   WishlistDetailt[] @relation("WishlistToWishlistDetails")
+}
+
+model WishlistDetailt{
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  wishlistId           String        @db.ObjectId
+  wishlist             Wishlist          @relation("WishlistToWishlistDetails", fields: [wishlistId], references: [id])
+  productVariantId String        @db.ObjectId
+  productVariant   ProductVariant @relation("WishlistDetailToProductVariant", fields: [productVariantId], references: [id])
 }
 
 model BuyNowItem {
