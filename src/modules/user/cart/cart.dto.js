@@ -2,7 +2,7 @@ import { ClientException } from "../../../utils/errors.js";
 
 export class CartDto {
   constructor(data) {
-    this.quantity = parseInt(data.firstName);
+    this.quantity = parseInt(data.quantity);
     this.validate();
   }
   validate() {

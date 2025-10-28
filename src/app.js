@@ -20,6 +20,7 @@ import "./config/passport.js";
 import {authMiddleware} from "./middlewares/auth.middleware.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+
 const app = express();
 app.use(express.static("public"));
 

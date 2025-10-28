@@ -8,11 +8,19 @@ export class CartService {
         const productVariant=await prisma.productVariant.findUnique({ where: { id: productVariantId } });
         if(!productVariant) throw new ServerException("Sản phẩm không tồn tại",404);
         if(data.quantity>productVariant.stockQuantity) throw new ServerException("Số lượng trong kho không đủ",400);
+        let cartDetailt=await prisma.cartDetail.findFirst({
+            where:{
+                cartId:cart.id,
+                productVariantId
+            }
+        });
+        if(cartDetailt) throw new ServerException("Sản phẩm đã có trong giỏ hàng, vui lòng cập nhật số lượng",400);
         const newCartDetailt=await prisma.cartDetail.create({
             data:{
-                cartId:cart.id,
-                productVariantId,
-                quantity:data.quantity
+                cart: { connect: { id: cart.id } },
+                productVariant: { connect: { id: productVariantId } },
+                quantity:data.quantity,
+                unitPrice:productVariant.variantPrice
             }
         });
         return newCartDetailt;
