@@ -12,7 +12,7 @@ class AuthController {
   async verifyEmail(req, res, next) {
       try {
         await authService.verifyEmail(req.query.token);
-        return res.redirect(`${process.env.FRONTEND_URL_USER}`);
+        return res.redirect(`${process.env.FRONTEND_URL_USER}/login`);
       }
       catch (error) {
         return errorResponse(res, error.message, error.status || 500);
