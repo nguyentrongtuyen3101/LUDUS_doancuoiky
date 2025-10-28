@@ -222,7 +222,7 @@ export async function sendVerificationEmail(user, token) {
 }
 
 export async function sendResetPasswordEmail(user, token) {
-  const resetUrl = `${process.env.APP_URL}/auth/reset-password?token=${token}`;
+  const resetUrl = `${process.env.APP_URL}/auth/redirect-reset-password?token=${token}`;
   const html = `
   <!DOCTYPE html>
   <html lang="en">
@@ -320,7 +320,7 @@ export async function sendResetPasswordEmail(user, token) {
       <p>Hello <strong>${user.firstName} ${user.lastName}</strong>,<br>
          We received a request to reset your password for your <b><span class="highlight-l">L</span><span class="highlight">UDUS</span></b> account.<br/>
       Click the button below to set a new password</p>
-      <a href="http://localhost:3000/reset_password.html?token=${token}"  class="btn" style="color: red; text-decoration: none;background-color: white;padding:15px 20px 15px 20px;font-size: 20px; border: solid 2px red;border-radius: 20px;font-weight: bold;">Reset Password</a>
+      <a href='${resetUrl}' class="btn" style="color: red; text-decoration: none;background-color: white;padding:15px 20px 15px 20px;font-size: 20px; border: solid 2px red;border-radius: 20px;font-weight: bold;">Reset Password</a>
       <p style="margin-top:24px;">If you didn’t request a password reset, you can safely ignore this email.</p>
 
       <div class="footer">
