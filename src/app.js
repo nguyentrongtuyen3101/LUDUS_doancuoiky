@@ -9,7 +9,7 @@ import productRouter from "./routes/admin/product.routes.js";
 import productVariantRouter from "./routes/admin/productVariant.routes.js";
 import newArrivalsRouter from "./routes/user/newArrivals.routes.js";
 import cartRouter from "./routes/user/cart.routes.js";
-
+import wishlistRouter from "./routes/user/wishlist.routes.js";
 
 
 import { loggerMiddleware } from "./middlewares/logger.middleware.js";
@@ -59,6 +59,7 @@ app.use("/product-variant", authMiddleware(["Admin"]), productVariantRouter);
 // user routes
 app.use("/manager-profile",authMiddleware(["User","Admin"]), profileRoutes);
 app.use("/cart",authMiddleware(["User","Admin"]), cartRouter);
+app.use("/wishlist",authMiddleware(["User","Admin"]), wishlistRouter);
 app.use("/new-arrivals",authMiddleware(["User","Admin"]), newArrivalsRouter);
 app.use(errorMiddleware);
 
