@@ -22,6 +22,9 @@ export class ProfileService{
     }
 
     async updateProfile(userId, profileData){
+        if(await prisma.user.count({where: { email: profileData.email, id: { not: userId } }}) > 0){
+            throw new ClientException("Email đã được sử dụng bởi người dùng khác",400);
+        }
         const user = await prisma.user.update({
             where: { id: userId },
             data: {
