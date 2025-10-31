@@ -5,9 +5,11 @@ import { validateQuery, paginationSchema } from "../../validators/queryValidator
 
 const router = Router();
 router.post("/create/:id",upload.single("file") ,new productController().create);
+
 router.patch("/update/:id",upload.single("file") ,new productController().update);
 router.delete("/delete/:id", new productController().delete);
 router.get("/categories-subcategories", new productController().getAllCategoryAndSubcategory);
 router.get("/all",validateQuery(paginationSchema), new productController().getAll);
+router.post("/upload-images/:id", upload.array("files", 10), new productController().uploadProdcutImageAray);
 
 export default router;

@@ -33,3 +33,8 @@ const fileFilter = (req, file, cb) => {
 };
 
 export const upload = multer({ storage, fileFilter });
+export const uploadMultiple = multer({
+  storage,
+  fileFilter,
+  limits: { files: 10 },
+}).array("files", 10);

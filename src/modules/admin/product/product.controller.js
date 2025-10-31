@@ -43,4 +43,12 @@ export class productController {
             return errorResponse(res, error.message, error.status || 500);
         }
     }
+    async uploadProdcutImageAray(req, res, next) {
+        try {
+            const result = await new productService().uploadProdcutImageAray(req.files, req.params.id);
+            return successResponse(res, result, "Tải lên hình ảnh sản phẩm thành công", 200);
+        } catch (error) {
+            return errorResponse(res, error.message, error.status || 500);
+        }
+    }
 }
