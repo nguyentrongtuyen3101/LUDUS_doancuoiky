@@ -26,4 +26,12 @@ export class newArrivalsController {
             return errorResponse(res, error.message, error.status || 500);
         }
     }
+    async getAllImagesFromProduct(req, res, next) {
+        try {
+            const images = await new newArrivalsService().getAllImagesFromProduct(req.params.id);
+            return successResponse(res, images, "Lấy tất cả hình ảnh từ sản phẩm thành công", 200);
+        } catch (error) {
+            return errorResponse(res, error.message, error.status || 500);
+        }
+    }
 }

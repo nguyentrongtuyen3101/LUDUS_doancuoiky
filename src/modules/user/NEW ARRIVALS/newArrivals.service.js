@@ -52,4 +52,11 @@ export class newArrivalsService{
         if(!product) throw new ClientException("Sản phẩm không tồn tại",404);
         return product;
     }
+
+    async getAllImagesFromProduct(productId){
+        const images = await prisma.productImage.findMany({
+            where: { productId },
+        });
+        return images;
+    }
 }

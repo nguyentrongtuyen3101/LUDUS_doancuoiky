@@ -173,5 +173,5 @@ export class productService {
 
         return uploadResults;
     }
-
+    
 }

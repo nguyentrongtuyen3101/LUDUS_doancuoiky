@@ -6,5 +6,6 @@ const router = Router();
 router.get("/categories", new newArrivalsController().getAllCategoryAndSubcategory);
 router.get("/products",validateQuery(paginationSchema), new newArrivalsController().getNewArrivals);
 router.get("/products/:id", new newArrivalsController().getProductById);
+router.get("/product-images/:id", new newArrivalsController().getAllImagesFromProduct);
 
 export default router;
