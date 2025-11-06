@@ -1,7 +1,7 @@
 import prisma from "../../../../prisma/client.js"; 
 import { ServerException ,ClientException} from "../../../../utils/errors.js";
-import { generateVerificationToken,verifyVerificationToken ,generateResetcationToken,verifyResetcationToken} from "../../../../utils/token.js";
-import { sendVerificationEmail,sendResetPasswordEmail } from "../../../../utils/sendmail.js";
+import { generateResetcationToken,} from "../../../../utils/token.js";
+import { sendResetPasswordEmail } from "../../../../utils/sendmail.js";
 
 export class ProfileService{
     async getProfile(userId){

@@ -39,11 +39,10 @@ model User {
 model Address {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   userId      String   @db.ObjectId
-  fullName    String
+  firstName    String
+  lastName    String
   phoneNumber String
-  addressLine String
-  city        String
-  country     String
+  location   String
   isDefault   Boolean  @default(false)
   user        User     @relation(fields: [userId], references: [id])
   orders      Order[]  @relation("OrderToShippingAddress")
@@ -105,7 +104,6 @@ model ProductVariant {
   product                Product        @relation(fields: [productId], references: [id])
   createdAt       DateTime         @default(now())
   cartDetails            CartDetail[]   @relation("CartDetailToProductVariant")
-  buyNowItems            BuyNowItem[]   @relation("BuyNowItemToProductVariant")
   orderDetails           OrderDetail[]  @relation("OrderDetailToProductVariant")
 }
 
@@ -115,6 +113,9 @@ model ProductImage {
   imageUrl         String
   product   Product @relation(fields: [productId], references: [id])
 }
+
+
+
 
 // cart and Raorder domain models
 model Cart {
@@ -149,18 +150,6 @@ model WishlistDetailt{
   wishlist             Wishlist          @relation("WishlistToWishlistDetails", fields: [wishlistId], references: [id])
   productId String        @db.ObjectId
   product   Product @relation("WishlistDetailToProduct", fields: [productId], references: [id])
-}
-
-model BuyNowItem {
-  id               String        @id @default(auto()) @map("_id") @db.ObjectId
-  productVariantId String        @db.ObjectId
-  productVariant   ProductVariant @relation("BuyNowItemToProductVariant", fields: [productVariantId], references: [id])
-  quantity         Int
-  unitPrice        Float
-  productName      String
-  variantImageUrl  String
-  sizeName         String
-  colorName        String
 }
 
 model Order {
@@ -223,15 +212,16 @@ model ChatMessage {
 model Payment {
   id              String        @id @default(auto()) @map("_id") @db.ObjectId
   orderId         String        @db.ObjectId @unique
-  order           Order?        @relation("OrderToPayment", fields: [orderId], references: [id])
   paymentMethodId String        @db.ObjectId
-  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
   amount          Float
   paymentDate     DateTime      @default(now())
   status          String       
   transactionId   String?       
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+
+  order           Order?        @relation("OrderToPayment", fields: [orderId], references: [id])
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
 }
 
 model PaymentMethod {
@@ -239,8 +229,17 @@ model PaymentMethod {
   name        String   
   description String?   
   isActive    Boolean   @default(true)
+  type        PaymentType
   payments    Payment[]
   order       Order[]         @relation("PaymentMethodToOrders")
+}
+
+enum PaymentType {
+  COD
+  VNPAY
+  MOMO
+  ZALOPAY
+  BANK_TRANSFER
 }
 
 model Coupon {

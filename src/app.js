@@ -10,7 +10,9 @@ import productVariantRouter from "./routes/admin/productVariant.routes.js";
 import newArrivalsRouter from "./routes/user/newArrivals.routes.js";
 import cartRouter from "./routes/user/cart.routes.js";
 import wishlistRouter from "./routes/user/wishlist.routes.js";
-
+import AddressRouter from "./routes/user/manager_profile/address.routes.js";
+import PaymentMethodRoutes from "./routes/admin/paymentMethod.routes.js";
+ 
 
 import { loggerMiddleware } from "./middlewares/logger.middleware.js";
 import { responseTimeMiddleware } from "./middlewares/responseTime.middleware.js";
@@ -55,12 +57,14 @@ app.use("/category", authMiddleware(["Admin"]), categoryRouter);
 app.use("/subcategory", authMiddleware(["Admin"]), subCategoryRouter);
 app.use("/product", authMiddleware(["Admin"]), productRouter);
 app.use("/product-variant", authMiddleware(["Admin"]), productVariantRouter);
+app.use("/payment-method", authMiddleware(["Admin"]), PaymentMethodRoutes);
 
 // user routes
 app.use("/manager-profile",authMiddleware(["User","Admin"]), profileRoutes);
 app.use("/cart",authMiddleware(["User","Admin"]), cartRouter);
 app.use("/wishlist",authMiddleware(["User","Admin"]), wishlistRouter);
 app.use("/new-arrivals",authMiddleware(["User","Admin"]), newArrivalsRouter);
+app.use("/address",authMiddleware(["User","Admin"]), AddressRouter);  
 app.use(errorMiddleware);
 
 export default app;
