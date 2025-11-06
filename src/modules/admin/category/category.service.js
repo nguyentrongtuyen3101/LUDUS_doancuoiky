@@ -4,7 +4,7 @@ import { ServerException } from "../../../utils/errors.js";
 export class categoryService {
     async create(data) {
         const existingCategory = await prisma.category.findFirst({ 
-            where: { name: { contains: data.name, mode: "insensitive" } } 
+            where: { name: { contains: data.name, mode: "insensitive" },isActive:true } 
           });
           if (existingCategory) throw new ServerException("Danh mục đã tồn tại", 409);
           const newCategory = await prisma.category.create({
@@ -20,7 +20,7 @@ export class categoryService {
         if (!category) throw new ServerException("Danh mục không tồn tại", 404);
         if (data.name && data.name !== category.name) {
           const existingCategory = await prisma.category.count({ 
-            where: { name: { contains: data.name, mode: "insensitive" } } 
+            where: { name: { contains: data.name, mode: "insensitive" },isActive:true } 
           });
           if (existingCategory>1) throw new ServerException("Danh mục đã tồn tại", 409);
         }
@@ -36,7 +36,8 @@ export class categoryService {
     async delete(id) {
         const category = await prisma.category.findUnique({ where: { id } });
         if (!category) throw new ServerException("Danh mục không tồn tại", 404);
-        await prisma.category.delete({ where: { id } });
+        if(await prisma.subcategory.count({where:{categoryId:id,isActive:true}})>0) throw new ServerException("Danh mục đang được sử dụng, không thể xóa", 400);
+        await prisma.category.update({ where: { id }, data: { isActive: false } });
         return { message: "Xóa danh mục thành công" };
     }
     async getAll(query) {

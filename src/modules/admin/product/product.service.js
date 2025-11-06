@@ -8,7 +8,7 @@ export class productService {
         const tempPath = file?.path;
         try {
             if (!(await prisma.subcategory.findUnique({ where: { id } }))) throw new ServerException("Danh mục con không tồn tại", 404);
-            if (await prisma.product.findFirst({ where: { productCode: data.productCode } })) throw new ClientException("Mã sản phẩm đã tồn tại", 400);
+            if (await prisma.product.findFirst({ where: { productCode: data.productCode,isActive:true } })) throw new ClientException("Mã sản phẩm đã tồn tại", 400);
             if (!file) throw new ClientException("Hình ảnh sản phẩm là bắt buộc", 400);
             let imageUrl;
             try {
@@ -45,7 +45,7 @@ export class productService {
             const existingProduct = await prisma.product.findUnique({ where: { id } });
             if (!existingProduct) throw new ServerException("Sản phẩm không tồn tại", 404);
             if (data.productCode && data.productCode !== existingProduct.productCode) {
-                if (await prisma.product.findFirst({ where: { productCode: data.productCode } })) throw new ClientException("Mã sản phẩm đã tồn tại", 400);
+                if (await prisma.product.findFirst({ where: { productCode: data.productCode,isActive:true } })) throw new ClientException("Mã sản phẩm đã tồn tại", 400);
             }
             let imageUrl;
             if (file) {
@@ -90,18 +90,9 @@ export class productService {
     async delete(id) {
         const existingProduct = await prisma.product.findUnique({ where: { id } });
         if (!existingProduct) throw new ServerException("Sản phẩm không tồn tại", 404);
-        if (existingProduct.imageUrl) {
-            const segments = existingProduct.imageUrl.split("/");
-            const filename = segments[segments.length - 1];
-            const publicId = `products/${filename.split(".")[0]}`;
-            try {
-                await cloudinary.uploader.destroy(publicId);
-            } catch (err) {
-                console.log("Xóa ảnh thất bại:", err.message);
-            }
-        }
-        await prisma.product.delete({ where: { id } });
-        return { message: "Xóa sản phẩm thành công" };
+        await prisma.product.update({ where: { id }, data: { isActive: false } });
+        await prisma.productVariant.updateMany({ where: { productId: id }, data: { isActive: false } });
+        return;
     }
     async getAllCategoryAndSubcategory() {
         const categories = await prisma.category.findMany({
@@ -124,6 +115,7 @@ export class productService {
             if (!await prisma.subcategory.findUnique({ where: { id: query.id } })) throw new ServerException("Danh mục con không tồn tại", 404);
             where.subcategoryId = query.id;
         }
+        where.isActive = true;
         const products = await prisma.product.findMany({
             where,
             skip: query.offset,

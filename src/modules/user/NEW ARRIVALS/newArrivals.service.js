@@ -23,6 +23,7 @@ export class newArrivalsService{
             if(!await prisma.subcategory.findUnique({where:{id:query.id}})) throw new ServerException("Danh mục con không tồn tại", 404);
             where.subcategoryId=query.id;
         }
+        where.isActive=true;
         const products = await prisma.product.findMany({
             where,
             skip: query.offset,
@@ -46,7 +47,7 @@ export class newArrivalsService{
 
     async getProductById(id){
         const product = await prisma.product.findUnique({
-            where: { id },
+            where: { id,isActive:true },
             include: {productVariants: true}
         });
         if(!product) throw new ClientException("Sản phẩm không tồn tại",404);
