@@ -156,19 +156,21 @@ model WishlistDetailt{
 model Order {
   id                String        @id @default(auto()) @map("_id") @db.ObjectId
   userId            String        @db.ObjectId
-  user              User          @relation("UserToOrders", fields: [userId], references: [id])
   orderDate         DateTime      @default(now())
   totalAmount       Float
-  status            OrderStatus
+  status            OrderStatus   @default(Pending)
   shippingAddressId String        @db.ObjectId
-  shippingAddress   Address       @relation("OrderToShippingAddress", fields: [shippingAddressId], references: [id])
-  shippingCost      Float
+  shippingCost     Float
   paymentMethodId   String        @db.ObjectId
-  paymentMethod     PaymentMethod @relation("PaymentMethodToOrders", fields: [paymentMethodId], references: [id])
-  couponId          String?       @db.ObjectId @unique
-  coupon            Coupon?       @relation("CouponToOrder",fields: [couponId], references: [id])
+  couponId          String?       @db.ObjectId 
   discountApplied   Float         @default(0)
+  discountAppliedType  PromotionalType?
   notes             String?       
+
+  user              User          @relation("UserToOrders", fields: [userId], references: [id])
+  shippingAddress   Address       @relation("OrderToShippingAddress", fields: [shippingAddressId], references: [id])
+  paymentMethod     PaymentMethod @relation("PaymentMethodToOrders", fields: [paymentMethodId], references: [id])
+  coupon            Coupon?       @relation(fields: [couponId], references: [id]) 
   orderDetails      OrderDetail[] @relation("OrderToOrderDetails")
   payments          Payment?     @relation("OrderToPayment")
 }
@@ -176,12 +178,14 @@ model Order {
 model OrderDetail {
   id               String        @id @default(auto()) @map("_id") @db.ObjectId
   orderId          String        @db.ObjectId
-  order            Order         @relation("OrderToOrderDetails", fields: [orderId], references: [id])
+  
   productVariantId String        @db.ObjectId
-  productVariant   ProductVariant @relation("OrderDetailToProductVariant", fields: [productVariantId], references: [id])
+  
   quantity         Int
   unitPrice        Float
   subtotal         Float
+  order            Order         @relation("OrderToOrderDetails", fields: [orderId], references: [id])
+  productVariant   ProductVariant @relation("OrderDetailToProductVariant", fields: [productVariantId], references: [id])
 }
 
 enum OrderStatus {
@@ -216,7 +220,7 @@ model Payment {
   paymentMethodId String        @db.ObjectId
   amount          Float
   paymentDate     DateTime      @default(now())
-  status          String       
+  status          Boolean       @default(false)       
   transactionId   String?       
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -253,7 +257,7 @@ model Coupon {
   endDate          DateTime
   maxUsage         Int
   isActive         Boolean   @default(true)
-  order            Order?              @relation("CouponToOrder")
+  orders           Order[]
   users            VoucherWithUser[]
 }
 
