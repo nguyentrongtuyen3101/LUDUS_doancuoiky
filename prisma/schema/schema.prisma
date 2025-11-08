@@ -34,6 +34,7 @@ model User {
   reviews          Review[]       @relation("UserToReviews")
   sentMessages     ChatMessage[]  @relation("SentMessages")
   receivedMessages ChatMessage[]  @relation("ReceivedMessages")
+  vouchers   VoucherWithUser[]
 }
 
 model Address {
@@ -245,16 +246,34 @@ enum PaymentType {
 model Coupon {
   id               String    @id @default(auto()) @map("_id") @db.ObjectId
   code             String    @unique
-  discountAmount   Float?
-  discountPercentage Float?
+  promotionalType   PromotionalType
+  discountType    DiscountType
+  discountValue   Float
   startDate        DateTime
   endDate          DateTime
   maxUsage         Int
-  usedCount        Int       @default(0)
   isActive         Boolean   @default(true)
   order            Order?              @relation("CouponToOrder")
+  users            VoucherWithUser[]
 }
 
+enum PromotionalType {
+  SHIPPING
+  PRODUCT
+}
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+model VoucherWithUser {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  couponId   String   @db.ObjectId
+  isUse     Boolean  @default(false)
+  user       User     @relation(fields: [userId], references: [id])
+  coupon     Coupon   @relation(fields: [couponId], references: [id])
+}
 
 // Review domain model
 model Review {

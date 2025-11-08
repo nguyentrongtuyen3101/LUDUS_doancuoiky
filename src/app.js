@@ -12,6 +12,8 @@ import cartRouter from "./routes/user/cart.routes.js";
 import wishlistRouter from "./routes/user/wishlist.routes.js";
 import AddressRouter from "./routes/user/manager_profile/address.routes.js";
 import PaymentMethodRoutes from "./routes/admin/paymentMethod.routes.js";
+import VoucherRouter from "./routes/admin/voucher.routes.js";
+import CouponRouter from "./routes/user/coupon.routes.js";
  
 
 import { loggerMiddleware } from "./middlewares/logger.middleware.js";
@@ -58,6 +60,7 @@ app.use("/subcategory", authMiddleware(["Admin"]), subCategoryRouter);
 app.use("/product", authMiddleware(["Admin"]), productRouter);
 app.use("/product-variant", authMiddleware(["Admin"]), productVariantRouter);
 app.use("/payment-method", authMiddleware(["Admin"]), PaymentMethodRoutes);
+app.use("/voucher", authMiddleware(["Admin"]), VoucherRouter);
 
 // user routes
 app.use("/manager-profile",authMiddleware(["User","Admin"]), profileRoutes);
@@ -65,6 +68,7 @@ app.use("/cart",authMiddleware(["User","Admin"]), cartRouter);
 app.use("/wishlist",authMiddleware(["User","Admin"]), wishlistRouter);
 app.use("/new-arrivals",authMiddleware(["User","Admin"]), newArrivalsRouter);
 app.use("/address",authMiddleware(["User","Admin"]), AddressRouter);  
+app.use("/coupon",authMiddleware(["User","Admin"]), CouponRouter);
 app.use(errorMiddleware);
 
 export default app;
