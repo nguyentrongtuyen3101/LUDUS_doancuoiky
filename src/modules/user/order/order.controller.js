@@ -24,8 +24,16 @@ export class OrderController {
         try {
             const userId = req.user.id;
             const data = new OrderDTO(req.body);
-            const newOrder = await new orderService().CheckOut(userId, data);
-            return successResponse(res, newOrder, "Đặt hàng thành công", 201);
+            const ipAddr =
+        req.headers["x-forwarded-for"] ||
+        req.connection.remoteAddress ||
+        req.socket.remoteAddress;
+        const newOrder = await new orderService().CheckOut(userId, data, ipAddr);
+        if (newOrder.redirectUrl) {
+          return successResponse(res, { order: newOrder, redirectUrl: newOrder.redirectUrl }, "Đặt hàng thành công", 200);
+        } else {
+          return successResponse(res, { order: newOrder }, "Đặt hàng thành công", 200);
+        }
         } catch (error) {
             return errorResponse(res, error.message, error.status || 500);
         }

@@ -1,5 +1,6 @@
 import prisma from "../../../prisma/client.js";
 import { ServerException } from "../../../utils/errors.js";
+import { buildVnpayUrl } from "../../../config/vnpay.config.js";
 
 export class orderService {
     async getAllPaymentMethod() {
@@ -23,13 +24,13 @@ export class orderService {
 
         return vouchers;
     }
-    async CheckOut(userId, data) {
-        for(const item of data.productVariants){
-            const productVariant = await prisma.productVariant.findUnique({where: {id: item.productVariantId}});
-            const product=await prisma.product.findUnique({where:{id:productVariant.productId}});
-            if(!productVariant) throw new ServerException(`Sản phẩm ${product.name} size: ${productVariant.size}, color: ${productVariant.color} không tồn tại`,404);
-            if(productVariant.stock < item.quantity) throw new ServerException(`Sản phẩm ${product.name} size: ${productVariant.size}, color: ${productVariant.color} đã hết hàng`,400);
-            if(productVariant.isActive === false) throw new ServerException(`Sản phẩm ${product.name} size: ${productVariant.size}, color: ${productVariant.color} đã ngừng bán`,400);
+    async CheckOut(userId, data, ipAddr) {
+        for (const item of data.productVariants) {
+            const productVariant = await prisma.productVariant.findUnique({ where: { id: item.productVariantId } });
+            const product = await prisma.product.findUnique({ where: { id: productVariant.productId } });
+            if (!productVariant) throw new ServerException(`Sản phẩm ${product.name} size: ${productVariant.size}, color: ${productVariant.color} không tồn tại`, 404);
+            if (productVariant.stock < item.quantity) throw new ServerException(`Sản phẩm ${product.name} size: ${productVariant.size}, color: ${productVariant.color} đã hết hàng`, 400);
+            if (productVariant.isActive === false) throw new ServerException(`Sản phẩm ${product.name} size: ${productVariant.size}, color: ${productVariant.color} đã ngừng bán`, 400);
         }
         let discountApplied = 0;
         let coupon = null;
@@ -59,37 +60,50 @@ export class orderService {
                 id: data.paymentMethodId
             }
         });
-        if (paymentMethod.type === "COD") {
-            const newOrder = await prisma.order.create({
-                data: {
-                    userId,
-                    totalAmount: data.totalAmount,
-                    shippingCost: data.shippingCost,
-                    shippingAddressId: data.shippingAddressId,
-                    paymentMethodId: data.paymentMethodId,
-                    notes: data.notes,
-                    discountApplied,
-                    discountAppliedType: data.couponId ? coupon.promotionalType : null,
-                    couponId: data.couponId || null,
-                    orderDetails: {
-                        create: data.productVariants.map((item) => ({
-                            productVariantId: item.productVariantId,
-                            quantity: item.quantity,
-                            unitPrice: item.unitPrice,
-                            subtotal: item.totalPrice,
-                        })),
-                    },
+        const newOrder = await prisma.order.create({
+            data: {
+                userId,
+                totalAmount: data.totalAmount,
+                shippingCost: data.shippingCost,
+                shippingAddressId: data.shippingAddressId,
+                paymentMethodId: data.paymentMethodId,
+                notes: data.notes,
+                discountApplied,
+                discountAppliedType: data.couponId ? coupon.promotionalType : null,
+                couponId: data.couponId || null,
+                orderDetails: {
+                    create: data.productVariants.map((item) => ({
+                        productVariantId: item.productVariantId,
+                        quantity: item.quantity,
+                        unitPrice: item.unitPrice,
+                        subtotal: item.totalPrice,
+                    })),
                 },
+            },
+        });
+        const transactionId = Date.now().toString().slice(-10) + Math.floor(Math.random() * 100).toString().padStart(2, "0");
+        const newPayment = await prisma.payment.create({
+            data: {
+                amount: data.totalAmount + data.shippingCost - discountApplied,
+                paymentMethodId: data.paymentMethodId,
+                transactionId: transactionId,
+                orderId: newOrder.id,
+            },
+        });
+
+        console.log("Payment Data:", {
+            amount: newPayment.amount,
+            transactionId: transactionId,
+            ipAddr,
+        });
+        // order.service.js
+        if (paymentMethod.type === "VNPAY") {
+            const vnpUrl = buildVnpayUrl({
+                amount: newPayment.amount,
+                transactionId: transactionId,  
+                ipAddr,
             });
-            const newPayment = await prisma.payment.create({
-                data: {
-                    amount: data.totalAmount + data.shippingCost - discountApplied,
-                    paymentMethodId: data.paymentMethodId,
-                    transactionId: Math.random().toString(36).substring(2, 8).toUpperCase(),
-                    orderId: newOrder.id,
-                }
-            });
-            return { newOrder, newPayment };
+            return { redirectUrl: vnpUrl };
         }
     }
 }
