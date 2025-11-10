@@ -1,10 +1,10 @@
-import qs from "qs";
 import crypto from "crypto";
+import qs from "qs";
 
 export const vnpayConfig = {
-  vnp_TmnCode: process.env.VNP_TMN_CODE,
-  vnp_HashSecret: process.env.VNP_HASH_SECRET,
-  vnp_Url: process.env.VNP_URL,
+  vnp_TmnCode: process.env.VNP_TMN_CODE?.trim(),
+  vnp_HashSecret: process.env.VNP_HASH_SECRET?.trim(),
+  vnp_Url: process.env.VNP_URL?.trim(),
   vnp_ReturnUrl: `${process.env.PUBLIC_URL}/callback/vnpay_return`,
   vnp_IpnUrl: `${process.env.PUBLIC_URL}/callback/vnpay_ipn`,
 };
@@ -42,52 +42,74 @@ export function buildVnpayUrl({ amount, transactionId, ipAddr, bankCode }) {
     vnp_TmnCode: vnpayConfig.vnp_TmnCode,
     vnp_Locale: "vn",
     vnp_CurrCode: "VND",
-    vnp_TxnRef: transactionId.toString(),
-    vnp_OrderInfo: "Thanh toan don hang " + transactionId,
+    vnp_TxnRef: transactionId,
+    vnp_OrderInfo: "Thanh-toan-don-hang-" + transactionId,
     vnp_OrderType: "other",
-    vnp_Amount: (amount * 100).toString(),
+    vnp_Amount: String(amount * 100), // Convert to string
     vnp_ReturnUrl: vnpayConfig.vnp_ReturnUrl,
     vnp_IpAddr: ipAddr,
     vnp_CreateDate: createDate,
   };
 
   if (bankCode) {
-    vnp_Params["vnp_BankCode"] = bankCode;
+    vnp_Params.vnp_BankCode = bankCode;
   }
 
-  // ✅ Sort theo alphabet
+  // Sort params
   vnp_Params = sortObject(vnp_Params);
 
-  // ✅ Tạo query string để tính hash - fix ESLint warning
-  const signData = Object.keys(vnp_Params).map(key => {
-    return key + "=" + vnp_Params[key];
-  });
-  const signDataString = signData.join("&");
-  
   console.log("==== VNPAY DEBUG ====");
-  console.log("Sign Data:", signDataString);
+  console.log("Sorted Params:", JSON.stringify(vnp_Params, null, 2));
+  
+  // Tạo sign data với qs.stringify - encode: false
+  const signData = qs.stringify(vnp_Params, { encode: false });
+  
+  console.log("Sign Data:", signData);
   console.log("Hash Secret:", vnpayConfig.vnp_HashSecret);
-  console.log("Hash Secret Length:", vnpayConfig.vnp_HashSecret?.length);
-  console.log("TMN Code:", vnpayConfig.vnp_TmnCode);
   
-  // ✅ Tạo HMAC SHA512
+  // Tạo HMAC SHA512 - Dùng Buffer.from() như code demo VNPay
   const hmac = crypto.createHmac("sha512", vnpayConfig.vnp_HashSecret);
-  const signed = hmac.update(Buffer.from(signDataString, "utf-8")).digest("hex");
+  const secureHash = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
   
-  console.log("Generated Hash:", signed);
+  console.log("Generated Hash:", secureHash);
 
-  // ✅ Thêm secure hash
-  vnp_Params["vnp_SecureHash"] = signed;
-
-  // ✅ Tạo URL với encoding
-  const urlParams = new URLSearchParams();
-  Object.keys(vnp_Params).forEach(key => {
-    urlParams.append(key, vnp_Params[key]);
-  });
-
-  const finalUrl = `${vnpayConfig.vnp_Url}?${urlParams.toString()}`;
+  // Tạo final URL - KHÔNG sort lại sau khi thêm SecureHash
+  const urlParams = { ...vnp_Params };
+  urlParams.vnp_SecureHash = secureHash;
+  
+  const finalUrl = vnpayConfig.vnp_Url + "?" + qs.stringify(urlParams, { encode: false });
+  
   console.log("Final URL:", finalUrl);
   console.log("====================");
   
   return finalUrl;
+}
+
+// Hàm verify callback từ VNPay
+export function verifyVnpayCallback(vnpParams) {
+  const secureHash = vnpParams.vnp_SecureHash;
+  
+  // Xóa các params không dùng để sign
+  const params = { ...vnpParams };
+  delete params.vnp_SecureHash;
+  delete params.vnp_SecureHashType;
+  
+  // Sort params
+  const sortedParams = sortObject(params);
+  
+  // Tạo sign data
+  const signData = qs.stringify(sortedParams, { encode: false });
+  
+  // Tạo hash để verify
+  const hmac = crypto.createHmac("sha512", vnpayConfig.vnp_HashSecret);
+  const calculatedHash = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
+  
+  console.log("==== VERIFY CALLBACK ====");
+  console.log("Sign Data:", signData);
+  console.log("Received Hash:", secureHash);
+  console.log("Calculated Hash:", calculatedHash);
+  console.log("Match:", secureHash === calculatedHash);
+  console.log("========================");
+  
+  return secureHash === calculatedHash;
 }
