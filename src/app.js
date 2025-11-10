@@ -16,6 +16,7 @@ import VoucherRouter from "./routes/admin/voucher.routes.js";
 import CouponRouter from "./routes/user/coupon.routes.js";
 import OrderRouter from "./routes/user/order/order.routes.js";
 import VnpCallbackRouter from "./routes/user/order/vnp-callback.routes.js";
+import ManagerOrderRouter from "./routes/admin/manager-order.routes.js";
  
 
 import { loggerMiddleware } from "./middlewares/logger.middleware.js";
@@ -63,6 +64,7 @@ app.use("/product", authMiddleware(["Admin"]), productRouter);
 app.use("/product-variant", authMiddleware(["Admin"]), productVariantRouter);
 app.use("/payment-method", authMiddleware(["Admin"]), PaymentMethodRoutes);
 app.use("/voucher", authMiddleware(["Admin"]), VoucherRouter);
+app.use("/manager-order",authMiddleware(["Admin"]), ManagerOrderRouter);
 
 // user routes
 app.use("/manager-profile",authMiddleware(["User","Admin"]), profileRoutes);

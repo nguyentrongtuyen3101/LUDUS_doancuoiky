@@ -100,10 +100,50 @@ export class orderService {
         if (paymentMethod.type === "VNPAY") {
             const vnpUrl = buildVnpayUrl({
                 amount: newPayment.amount,
-                transactionId: transactionId,  
+                transactionId: transactionId,
                 ipAddr,
             });
             return { redirectUrl: vnpUrl };
         }
+    }
+    async getAll(query) {
+        const where = query.status ?
+            {
+                status: query.status,
+            } : {};
+        const order = await prisma.order.findMany({
+            where,
+            skip: query.offset,
+            take: query.limit,
+            include: {
+                orderDetails: true,
+                payments: true,
+            },
+            orderBy: { orderDate: "desc" },
+        });
+        const total = await prisma.order.count(
+            { where }
+        );
+        const totalPages = Math.ceil(total / query.limit);
+        return {
+            data: order,
+            pagination: {
+                total,
+                totalPages,
+                limit: query.limit,
+                offset: query.offset,
+            },
+        };
+    }
+    async cancelled(userId, orderId) {
+        if (!await prisma.user.findUnique({ where: { id: userId } })) throw new ServerException("Người dùng không tồn tại", 404);
+        const order = await prisma.order.findUnique({ where: { id: orderId } });
+        if (order.status === "Pending") {
+            await prisma.order.update({
+                where: { id: orderId },
+                data: { status: "Cancelled" }
+            });
+        }
+        else throw new ServerException("Đơn hàng không thể hủy", 400);
     }
 }

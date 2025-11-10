@@ -38,4 +38,22 @@ export class OrderController {
             return errorResponse(res, error.message, error.status || 500);
         }
     }
+    async getAllOrder(req, res, next) {
+        try {
+            const order = await new orderService().getAll(req.validatedQuery);
+            return successResponse(res, order, "Lấy đơn hàng thành công", 200);
+        } catch (error) {
+            return errorResponse(res, error.message, error.status || 500);
+        }
+    }
+    async cancelled(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const orderId = req.params.orderId;
+            await new orderService().cancelled(userId, orderId);
+            return successResponse(res, null, "Hủy đơn hàng thành công", 200);
+        } catch (error) {
+            return errorResponse(res, error.message, error.status || 500);
+        }
+    }
 }
