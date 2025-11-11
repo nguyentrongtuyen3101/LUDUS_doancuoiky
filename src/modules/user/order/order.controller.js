@@ -50,8 +50,18 @@ export class OrderController {
         try {
             const userId = req.user.id;
             const orderId = req.params.orderId;
-            await new orderService().cancelled(userId, orderId);
+            const note = req.body.note;
+            await new orderService().cancelled(userId, orderId,note);
             return successResponse(res, null, "Hủy đơn hàng thành công", 200);
+        } catch (error) {
+            return errorResponse(res, error.message, error.status || 500);
+        }
+    }
+    async getProductVariantById(req, res, next) {
+        try {
+            const productVariantId = req.params.productVariantId;
+            const productVariant = await new orderService().getProductVariantById(productVariantId);
+            return successResponse(res, productVariant, "Lấy biến thể sản phẩm thành công", 200);
         } catch (error) {
             return errorResponse(res, error.message, error.status || 500);
         }

@@ -56,6 +56,7 @@ app.use(responseTimeMiddleware);
 app.use(passport.initialize());
 
 app.use("/auth", authRoutes);
+app.use("/callback", VnpCallbackRouter);
 app.use("/",authMiddleware(["User","Admin"]), meRoutes);
 // admin routes
 app.use("/category", authMiddleware(["Admin"]), categoryRouter);
@@ -74,7 +75,6 @@ app.use("/new-arrivals",authMiddleware(["User","Admin"]), newArrivalsRouter);
 app.use("/address",authMiddleware(["User","Admin"]), AddressRouter);  
 app.use("/coupon",authMiddleware(["User","Admin"]), CouponRouter);
 app.use("/order",authMiddleware(["User","Admin"]), OrderRouter);
-app.use("/callback", VnpCallbackRouter);
 
 app.use(errorMiddleware);
 

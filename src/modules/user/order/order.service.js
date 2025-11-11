@@ -135,15 +135,26 @@ export class orderService {
             },
         };
     }
-    async cancelled(userId, orderId) {
+    async cancelled(userId, orderId,note) {
         if (!await prisma.user.findUnique({ where: { id: userId } })) throw new ServerException("Người dùng không tồn tại", 404);
         const order = await prisma.order.findUnique({ where: { id: orderId } });
         if (order.status === "Pending") {
             await prisma.order.update({
                 where: { id: orderId },
-                data: { status: "Cancelled" }
+                data: { 
+                    status: "Cancelled",
+                    notes: note }
             });
         }
         else throw new ServerException("Đơn hàng không thể hủy", 400);
+    }
+    async getProductVariantById(productVariantId) {
+        const productVariant = await prisma.productVariant.findUnique({
+            where: { id: productVariantId },
+            include:{
+                product: true,
+            }
+        });
+        return productVariant;
     }
 }

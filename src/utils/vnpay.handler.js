@@ -4,9 +4,19 @@ import prisma from "../prisma/client.js";
 import { vnpayConfig } from "../config/vnpay.config.js";
 
 function sortObject(obj) {
-  return Object.keys(obj)
-    .sort()
-    .reduce((acc, key) => ((acc[key] = obj[key]), acc), {});
+  let sorted = {};
+  let str = [];
+  let key;
+  for (key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      str.push(encodeURIComponent(key));
+    }
+  }
+  str.sort();
+  for (key = 0; key < str.length; key++) {
+    sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
+  }
+  return sorted;
 }
 
 // vnpay.handler.js
@@ -24,6 +34,7 @@ export async function handleVnpayReturn(req, res) {
     .digest("hex");
 
   console.log("Full VNPAY Response:", vnp_Params);
+  console.log("Sign Data:", signData);
   console.log("Generated Signature:", signed);
   console.log("Secure Hash from VNPAY:", secureHash);
 
