@@ -23,6 +23,12 @@ export class newArrivalsService{
             if(!await prisma.subcategory.findUnique({where:{id:query.id}})) throw new ServerException("Danh mục con không tồn tại", 404);
             where.subcategoryId=query.id;
         }
+        if(query.minPrice&&query.maxPrice){
+            where.price={
+                gte: Number(query.minPrice),
+                lte: Number(query.maxPrice)
+            };
+        }
         where.isActive=true;
         const products = await prisma.product.findMany({
             where,
