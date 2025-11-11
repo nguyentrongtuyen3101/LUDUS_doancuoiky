@@ -105,6 +105,7 @@ export class orderService {
             });
             return { redirectUrl: vnpUrl };
         }
+        return newOrder;
     }
     async getAll(query) {
         const where = query.status ?

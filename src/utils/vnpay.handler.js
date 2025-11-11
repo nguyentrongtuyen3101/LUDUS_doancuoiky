@@ -58,7 +58,7 @@ export async function handleVnpayReturn(req, res) {
         });
       }
     }
-    return res.redirect(`${process.env.FRONTEND_URL_USER}/myorder`);
+    return res.redirect(`${process.env.FRONTEND_URL_USER}/dashboard/dash-my-order`);
   } else {
     console.log("❌ Signature mismatch!");
     return res.status(400).send("Invalid signature");
