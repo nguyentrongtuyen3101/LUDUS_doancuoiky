@@ -25,5 +25,5 @@ router.get(
   passport.authenticate("facebook", {session: false, failureRedirect: "/login" }),
   (req, res, next) => AuthController.facebookCallback(req, res, next)
 );
-router.delete("/logout",authMiddleware(["COLLECTOR"]), AuthController.logout);
+router.delete("/logout",authMiddleware(["User","Admin"]), AuthController.logout);
 export default router;
