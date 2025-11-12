@@ -190,6 +190,11 @@ class AuthService {
     if(!user) throw new ServerException("Không tìm thấy người dùng", 404);
     return user;
   }
+  async logout(userId) {
+  // Xoá token trong Redis
+    await redis.del(`auth:user:${userId}`);
+    return { message: "Logout successful" };
+  }
 }
 
 export default new AuthService();

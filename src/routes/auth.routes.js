@@ -1,7 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
 import AuthController from "../modules/auth/auth.controller.js";
-
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 const router = Router();
 
 router.post("/register", AuthController.register);
@@ -25,5 +25,5 @@ router.get(
   passport.authenticate("facebook", {session: false, failureRedirect: "/login" }),
   (req, res, next) => AuthController.facebookCallback(req, res, next)
 );
-
+router.delete("/logout",authMiddleware(["COLLECTOR"]), AuthController.logout);
 export default router;
