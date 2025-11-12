@@ -15,10 +15,10 @@ export class CreateDto {
   }
 
   validate() {
-    if (!this.firstName || this.firstName.length < 2) throw new ClientException("First name must be at least 2 characters", 400);
-    if (!this.lastName || this.lastName.length < 2) throw new ClientException("Last name must be at least 2 characters", 400);
+    if (!this.firstName || this.firstName.length < 2) throw new ClientException("Tên phải có ít nhất 2 ký tự", 400);
+    if (!this.lastName || this.lastName.length < 2) throw new ClientException("Họ phải có ít nhất 2 ký tự", 400);
     const phoneRegex = /^(0|\+84)(\d{9})$/;
-    if (!phoneRegex.test(this.phoneNumber))throw new ClientException("Số điện thoại không hợp lệ", 400);
-    if (!this.location || this.location.length < 5) throw new ClientException("Location must be at least 5 characters", 400);
+    if (!phoneRegex.test(this.phoneNumber))throw new ClientException("Số điện thoại không đúng định dạng", 400);
+    if (!this.location || this.location.length < 5) throw new ClientException("Địa điểm là bắt buộc", 400);
   }
 }

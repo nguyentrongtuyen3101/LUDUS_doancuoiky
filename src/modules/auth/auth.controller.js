@@ -6,7 +6,7 @@ import { authCookieOptions,resetPasswordCookieOptions } from "../../config/cooki
 class AuthController {
   async register(req, res, next) {
     const user = await authService.register(new RegisterDto(req.body));
-    return successResponse(res, user, "User registered successfully", 201);
+    return successResponse(res, user, "Đang ký thành công", 201);
   }
 
   async verifyEmail(req, res, next) {
@@ -63,7 +63,7 @@ class AuthController {
   }
   async resetPassword(req, res, next) {
     const user = await authService.resetPassword(req.cookies?.reset_token, new ResetPasswordDto(req.body));
-    return successResponse(res, user, "Password reset successfully", 200);
+    return successResponse(res, user, "Mật khẩu đổi thành công", 200);
     }
   
   async me(req, res, next) {

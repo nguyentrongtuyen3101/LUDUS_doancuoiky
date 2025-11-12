@@ -13,15 +13,15 @@ export class RegisterDto {
   }
 
   validate() {
-    if (!this.firstName || this.firstName.length < 2) throw new ClientException("First name must be at least 2 characters", 400);
-    if (!this.lastName || this.lastName.length < 2) throw new ClientException("Last name must be at least 2 characters", 400);
+    if (!this.firstName || this.firstName.length < 2) throw new ClientException("Tên phải có ít nhất 2 ký tự", 400);
+    if (!this.lastName || this.lastName.length < 2) throw new ClientException("Họ phải có ít nhất 2 ký tự", 400);
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.email)) throw new ClientException("Invalid email format", 400);
+    if (!emailRegex.test(this.email)) throw new ClientException("Email không đúng định dạng", 400);
 
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(this.password)) throw new ClientException("Password must contain at least 8 characters, including uppercase, lowercase, number, and special character",400);
+    if (!passwordRegex.test(this.password)) throw new ClientException("Mật khẩu tối thiểu 8 ký tự phải có chữ hoa, thường, số và ký tự đặc biệt ",400);
     if(!this.birthday) throw new ClientException("Vui lòng nhập ngày tháng năm sinh", 400);
     if(!this.gender) throw new ClientException("Vui lòng chọn giới tính", 400);
     if(new Date().getFullYear()-new Date(this.birthday).getFullYear()<18) throw new ClientException("Người dùng phải đủ 18 tuổi", 400);
@@ -37,8 +37,8 @@ export class LoginDto {
 
   validate() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.email)) throw new ClientException("Invalid email format", 400);
-    if (!this.password) throw new ClientException("Password is required", 400);
+    if (!emailRegex.test(this.email)) throw new ClientException("Email không đúng định dạng", 400);
+    if (!this.password) throw new ClientException("Vui lòng nhập mật khẩu", 400);
   }
 }
 
@@ -50,7 +50,7 @@ export class SendResetPasswordDto {
 
   validate() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.email)) throw new ClientException("Invalid email format", 400);
+    if (!emailRegex.test(this.email)) throw new ClientException("Email không đúng định dạng", 400);
   }
 }
 
@@ -63,6 +63,6 @@ export class ResetPasswordDto {
   validate() {
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(this.password)) throw new ClientException("Password must contain at least 8 characters, including uppercase, lowercase, number, and special character",400);
+    if (!passwordRegex.test(this.password)) throw new ClientException("Mật khẩu tối thiểu 8 ký tự phải có chữ hoa, thường, số và ký tự đặc biệt ",400);
   }
 }

@@ -13,10 +13,10 @@ export class UpdateDto {
   }
 
   validate() {
-    if (!this.firstName || this.firstName.length < 2) throw new ClientException("First name must be at least 2 characters", 400);
-    if (!this.lastName || this.lastName.length < 2) throw new ClientException("Last name must be at least 2 characters", 400);
+    if (!this.firstName || this.firstName.length < 2) throw new ClientException("Tên phải có ít nhất 2 ký tự", 400);
+    if (!this.lastName || this.lastName.length < 2) throw new ClientException("Họ phải có ít nhất 2 ký tự", 400);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.email)) throw new ClientException("Invalid email format", 400);
+    if (!emailRegex.test(this.email)) throw new ClientException("Email không đúng định dạng", 400);
     if(!this.birthday) throw new ClientException("Vui lòng nhập ngày tháng năm sinh", 400);
     if(!this.gender) throw new ClientException("Vui lòng chọn giới tính", 400);
     if(new Date().getFullYear()-new Date(this.birthday).getFullYear()<18) throw new ClientException("Người dùng phải đủ 18 tuổi", 400);

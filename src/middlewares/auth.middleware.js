@@ -5,7 +5,7 @@ export const authMiddleware = (roles = []) => {
   return async (req, res, next) => {
   try{
     const token = req.cookies?.authToken;
-    if (!token) return res.status(401).json({ message: "Access denied. No token provided." });
+    if (!token) return res.status(401).json({ message: "Không thấy thông tin xác thực." });
 
     const decoded = verifyToken(token);
       if (!decoded || !decoded.id) return res.status(401).json({ message: "Invalid token." });
@@ -16,7 +16,7 @@ export const authMiddleware = (roles = []) => {
       }
 
       if (roles.length && !roles.includes(decoded.role)) {
-        return res.status(403).json({ message: "Forbidden: insufficient role" });
+        return res.status(403).json({ message: "Bạn không có quyền thực hiện hành động này" });
       }
 
       req.user = {

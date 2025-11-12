@@ -15,8 +15,8 @@ class AuthService {
         email: data.email 
         }
     });
-    if (existingUser) throw new ServerException("Email already registered", 409);
-    
+    if (existingUser && (existingUser.isActive || existingUser.isActive=="true")) throw new ServerException("Email này đã được đăng ký", 409);
+    else if(existingUser && (!existingUser.isActive || existingUser.isActive=="false"))throw new ServerException("Email này đã được đăng ký nhưng chưa được kích hoạt, vui lòng kiểm tra email để xác thực tài khoản", 409);
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     const newUser = await prisma.user.create({
@@ -44,11 +44,11 @@ class AuthService {
     return newUser;
   }
   async verifyEmail(token) {
-    if(!token) throw new ServerException("Verification token is required", 400);
+    if(!token) throw new ServerException("Không có thông tin xác thực", 400);
     const verifitoken = await prisma.verifiToken.findFirst({ 
       where: { token, expiresAt: { gt: new Date() },used: false } 
     });
-    if(!verifitoken) throw new ServerException("Invalid or expired verification token", 400);
+    if(!verifitoken) throw new ServerException("Không có thông tin xác thực hoặc đã hết hạn", 400);
     try {
       const decoded= verifyVerificationToken(token);
       const user=await prisma.user.update(
@@ -62,7 +62,7 @@ class AuthService {
       await prisma.verifiToken.updateMany({ where: { userId: user.id }, data: { used: true } });
       return user;
     } catch (error) {
-      throw new ServerException("Invalid or expired verification token", 400);
+      throw new ServerException("Không có thông tin xác thực hoặc đã hết hạn", 400);
     }
   }
 
@@ -169,11 +169,11 @@ class AuthService {
     if(!(await prisma.passwordResetToken.findFirst({ where: { token, expiresAt: { gt: new Date() }, used: false } }))) throw new ServerException("Giao dịch hết hạn , vui lòng gửi lại yêu cầu ", 400);
     const decoded = verifyResetcationToken(token);
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
-    if(!user) throw new ServerException("User not found", 404);
+    if(!user) throw new ServerException("Không tìm thấy người dùng này", 404);
     const hashedPassword = await bcrypt.hash(data.password, 10);
     await prisma.user.update({ where: { id: user.id }, data: { password: hashedPassword } });
     await prisma.passwordResetToken.updateMany({ where: { userId: user.id }, data: { used: true } });
-    return { message: "Password reset successful" };
+    return { message: "Mật khẩu reset thành công" };
   }
 
   async me(userId) {
@@ -187,7 +187,7 @@ class AuthService {
         role: true,
         }
     });
-    if(!user) throw new ServerException("User not found", 404);
+    if(!user) throw new ServerException("Không tìm thấy người dùng", 404);
     return user;
   }
 }
