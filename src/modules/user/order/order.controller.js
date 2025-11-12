@@ -66,4 +66,14 @@ export class OrderController {
             return errorResponse(res, error.message, error.status || 500);
         }
     }
+
+    async getOrderById(req, res, next) {
+        try {
+            const orderId = req.params.orderId;
+            const order = await new orderService().getOrderById(orderId);
+            return successResponse(res, order, "Lấy đơn hàng thành công", 200);
+        } catch (error) {
+            return errorResponse(res, error.message, error.status || 500);
+        }
+    }
 }

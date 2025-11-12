@@ -9,4 +9,5 @@ router.post("/checkout",new OrderController().CheckOut);
 router.get("/",validateQuery(paginationSchema),new OrderController().getAllOrder);
 router.patch("/:orderId",new OrderController().cancelled);
 router.get("/product-variant/:productVariantId",new OrderController().getProductVariantById);
+router.get("/:orderId",new OrderController().getOrderById);
 export default router;

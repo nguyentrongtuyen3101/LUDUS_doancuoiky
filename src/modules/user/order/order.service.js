@@ -158,4 +158,14 @@ export class orderService {
         });
         return productVariant;
     }
+    async getOrderById(orderId) {
+        const order = await prisma.order.findUnique({
+            where: { id: orderId },
+            include: {
+                orderDetails: true,
+                payments: true,
+            }
+        });
+        return order;
+    }
 }
